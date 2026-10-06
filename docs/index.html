@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flixdex: Netflix & HBO Max with IMDb ratings (free Windows app)</title>
+<meta name="description" content="See IMDb ratings for every movie and series on Netflix and HBO Max in your country. Flixdex is a free Windows app: search, filter by genre and rating, and find what to watch tonight.">
+<meta name="keywords" content="Netflix IMDb ratings, HBO Max IMDb ratings, what to watch on Netflix, Netflix catalog by country, best rated Netflix movies, Windows app">
+<meta name="author" content="Loukas Pavlou">
+<link rel="canonical" href="https://turnedone.github.io/flixdex/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Flixdex: every Netflix & HBO Max title, rated">
+<meta property="og:description" content="Free Windows app showing the IMDb rating of everything on Netflix and HBO Max in your country.">
+<meta property="og:url" content="https://turnedone.github.io/flixdex/">
+<meta property="og:image" content="https://turnedone.github.io/flixdex/social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='10' width='56' height='44' rx='10' fill='%23e50914'/%3E%3Cpath d='M26 22 L44 32 L26 42 Z' fill='white'/%3E%3C/svg%3E">
+<script type="application/ld+json">
+[{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Flixdex",
+  "description": "Browse everything streaming on Netflix and HBO Max in your country with the IMDb rating of every movie and series.",
+  "operatingSystem": "Windows 10, Windows 11",
+  "applicationCategory": "MultimediaApplication",
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"},
+  "downloadUrl": "https://github.com/Turnedone/flixdex/releases/latest/download/Flixdex.exe",
+  "softwareVersion": "1.0.0",
+  "screenshot": "https://turnedone.github.io/flixdex/screenshot.png",
+  "url": "https://turnedone.github.io/flixdex/",
+  "codeRepository": "https://github.com/Turnedone/flixdex",
+  "license": "https://opensource.org/licenses/MIT",
+  "author": {"@type": "Person", "name": "Loukas Pavlou", "url": "https://turnedone.github.io/"}
+},{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "Is Flixdex free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Flixdex is free and open source. You only need a free TMDB API key, which takes about two minutes to get."}},
+    {"@type": "Question", "name": "Do I need a Netflix or HBO Max account?", "acceptedAnswer": {"@type": "Answer", "text": "Not to browse. The Watch button simply opens the title on Netflix or HBO Max in your browser, where you need your own subscription to play it."}},
+    {"@type": "Question", "name": "Which countries does Flixdex support?", "acceptedAnswer": {"@type": "Answer", "text": "Any country where TMDB and JustWatch track Netflix or HBO Max, which is most of them. You choose your country in Settings."}},
+    {"@type": "Question", "name": "Where do the ratings come from?", "acceptedAnswer": {"@type": "Answer", "text": "IMDb ratings come from IMDb's official ratings dataset, downloaded once a day. The catalog comes from TMDB with streaming availability by JustWatch."}}
+  ]
+}]
+</script>
+<style>
+:root{--bg:#0b0b10;--panel:#13131a;--line:#272733;--text:#ececf2;--muted:#9696a8;--accent:#e50914;--hbo:#5b2fd6;--imdb:#f5c518}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:17px/1.6 "Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif}
+a{color:#ff5a63}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+nav{display:flex;justify-content:space-between;align-items:center;padding:18px 0}
+nav .brand{font-weight:800;font-size:22px;color:var(--text);text-decoration:none}
+nav .brand span{color:var(--accent)}
+nav a.gh{color:var(--muted);text-decoration:none;font-weight:600}
+.hero{text-align:center;padding:48px 0 28px}
+h1{font-size:clamp(34px,6vw,58px);line-height:1.08;margin:0 0 16px;letter-spacing:-.02em}
+h1 .n{color:var(--accent)} h1 .h{color:#8b6cf0} h1 .i{color:var(--imdb)}
+.sub{font-size:clamp(18px,2.4vw,21px);color:var(--muted);max-width:720px;margin:0 auto 28px}
+.cta{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;font-weight:700;font-size:19px;padding:14px 30px;border-radius:12px}
+.cta:hover{background:#ff2a35}
+.meta{color:var(--muted);font-size:15px;margin-top:12px}
+.demo{margin:36px auto 0;max-width:960px}
+.demo img{width:100%;height:auto;border-radius:14px;border:1px solid var(--line);display:block}
+h2{font-size:30px;margin:64px 0 20px;text-align:center}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px}
+.feature{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+.feature h3{margin:0 0 6px;font-size:19px}
+.feature p{margin:0;color:var(--muted)}
+.steps{max-width:720px;margin:0 auto;padding-left:22px}
+.steps li{margin:10px 0}
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:10px auto;max-width:760px}
+summary{cursor:pointer;font-weight:600}
+details p{color:var(--muted);margin:10px 0 0}
+footer{margin:64px 0 36px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:14px;text-align:center}
+code{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:15px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav>
+  <a class="brand" href="./">Flix<span>dex</span></a>
+  <a class="gh" href="https://github.com/Turnedone/flixdex">GitHub ↗</a>
+</nav>
+
+<header class="hero">
+  <h1>Every <span class="n">Netflix</span> &amp; <span class="h">HBO Max</span> title,<br>with its <span class="i">IMDb rating</span></h1>
+  <p class="sub">Flixdex shows everything streaming on Netflix and HBO Max in your country, sorted by what people actually think of it.
+  Stop scrolling, start watching.</p>
+  <a class="cta" href="https://github.com/Turnedone/flixdex/releases/latest/download/Flixdex.exe">⬇ Download for Windows</a>
+  <p class="meta">Free · open source · no install · Windows 10 &amp; 11</p>
+  <div class="demo">
+    <img src="demo.gif" width="960" height="600" alt="Flixdex demo: switching between Netflix and HBO Max, filtering series, searching and opening a title">
+  </div>
+</header>
+
+<main>
+<h2>Find something worth watching</h2>
+<div class="features">
+  <div class="feature"><h3>The whole catalog</h3><p>Every movie and series on Netflix, HBO Max, or both, for the country you choose.</p></div>
+  <div class="feature"><h3>IMDb ratings for everything</h3><p>Rating and vote count for every title, refreshed daily from IMDb's own data.</p></div>
+  <div class="feature"><h3>Filters that matter</h3><p>Genre, release year, minimum rating, movies or series. Sort by rating, popularity or date.</p></div>
+  <div class="feature"><h3>One click to watch</h3><p>Open any title straight on Netflix or HBO Max in your browser.</p></div>
+  <div class="feature"><h3>Fast and private</h3><p>A single <code>.exe</code>. No account, no tracking; your data stays on your PC.</p></div>
+  <div class="feature"><h3>No usage limits</h3><p>Built only on free data sources without daily quotas, and it caches what it fetches.</p></div>
+</div>
+
+<h2>Get started in three steps</h2>
+<ol class="steps">
+  <li><a href="https://github.com/Turnedone/flixdex/releases/latest/download/Flixdex.exe"><b>Download Flixdex.exe</b></a> and run it. If Windows shows "Windows protected your PC", click <b>More info → Run anyway</b> (the app isn't code-signed).</li>
+  <li>Get a free <b>TMDB API key</b> at <a href="https://www.themoviedb.org/settings/api">themoviedb.org/settings/api</a>. For the application URL, <code>http://localhost</code> is fine.</li>
+  <li>Paste the key into Flixdex and pick your country. The first start takes a few minutes; after that it opens instantly.</li>
+</ol>
+
+<h2>Questions</h2>
+<details><summary>Is Flixdex free?</summary><p>Yes, free and open source (MIT license). You only need a free TMDB API key.</p></details>
+<details><summary>Do I need a Netflix or HBO Max account?</summary><p>Not to browse. The Watch button opens the title on the service's website, where you need your own subscription to play it.</p></details>
+<details><summary>Which countries work?</summary><p>Any country where TMDB and JustWatch track Netflix or HBO Max, which is most of them. Choose yours in Settings.</p></details>
+<details><summary>Where do the ratings come from?</summary><p>IMDb ratings come from IMDb's official ratings dataset, downloaded once a day. The catalog comes from TMDB, with streaming availability by JustWatch.</p></details>
+<details><summary>Is there a Mac or phone version?</summary><p>Not yet. Flixdex is Windows-only for now. The source is on <a href="https://github.com/Turnedone/flixdex">GitHub</a>.</p></details>
+</main>
+
+<footer>
+  Made by <a href="https://turnedone.github.io/">Loukas Pavlou</a> · <a href="https://github.com/Turnedone/flixdex">Source on GitHub</a> · <a href="https://github.com/Turnedone/flixdex/issues/new/choose">Report a problem</a><br>
+  This product uses the TMDB API but is not endorsed or certified by TMDB. IMDb ratings courtesy of IMDb, for personal and non-commercial use.
+  Not affiliated with Netflix, HBO, Warner Bros. Discovery or IMDb.
+</footer>
+</div>
+</body>
+</html>

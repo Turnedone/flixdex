@@ -6,4 +6,4 @@ __pycache__/
 *.spec
 
 # early web prototype, not part of the app (it used the rate-limited OMDb API)
-index.html
+/index.html
