@@ -1,0 +1,27 @@
+name: Bug report
+description: Something isn't working as it should
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead? Screenshots help a lot.
+    validations:
+      required: true
+  - type: input
+    id: country
+    attributes:
+      label: Country set in Flixdex
+      placeholder: e.g. GR, US, GB
+  - type: input
+    id: version
+    attributes:
+      label: Flixdex version
+      description: From the release you downloaded, or "source" if you run flixdex.py.
+      placeholder: e.g. 1.0.0
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: e.g. Windows 11 24H2

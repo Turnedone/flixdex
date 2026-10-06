@@ -1984,6 +1984,14 @@ def main():
         except Exception:
             pass
     app = QApplication(sys.argv)
+    setup_app(app)
+    win = MainWindow()
+    win.show()
+    sys.exit(app.exec())
+
+
+def setup_app(app):
+    """Dark Fusion theme shared by the app and tools/make_media.py."""
     app.setApplicationName('Flixdex')
     app.setStyle('Fusion')
     app.setFont(QFont('Segoe UI', 10))
@@ -1998,9 +2006,6 @@ def main():
         pal.setColor(role, QColor(color))
     app.setPalette(pal)
     app.setStyleSheet(STYLE)
-    win = MainWindow()
-    win.show()
-    sys.exit(app.exec())
 
 
 if __name__ == '__main__':
