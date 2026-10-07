@@ -23,7 +23,7 @@ from PySide6.QtGui import (QColor, QDesktopServices, QFont, QFontMetrics, QIcon,
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkDiskCache, QNetworkReply, QNetworkRequest
 from PySide6.QtWidgets import (QApplication, QButtonGroup, QComboBox, QDialog, QFrame, QHBoxLayout, QLabel,
                                QLineEdit, QListView, QMainWindow, QProgressBar, QPushButton, QScrollArea, QSizePolicy,
-                               QSlider, QSpinBox, QStackedWidget, QStyle, QStyledItemDelegate, QVBoxLayout, QWidget)
+                               QSlider, QStackedWidget, QStyle, QStyledItemDelegate, QVBoxLayout, QWidget)
 
 APP_DIR = Path(os.environ.get('APPDATA', Path.home())) / 'Flixdex'
 IMG = 'https://image.tmdb.org/t/p/'
@@ -1005,13 +1005,13 @@ class MainWindow(QMainWindow):
 
         head('Release year')
         yr = QHBoxLayout()
-        self.y_min, self.y_max = QSpinBox(), QSpinBox()
-        for sp, key, any_text in [(self.y_min, 'yMin', 'From: any'), (self.y_max, 'yMax', 'To: any')]:
-            sp.setRange(1899, 2100)
-            sp.setSpecialValueText(any_text)
-            sp.setValue(1899)
-            sp.valueChanged.connect(lambda val, key=key: self.set_filter(400, **{key: 0 if val == 1899 else val}))
-            yr.addWidget(sp)
+        # Dropdowns of the years in the catalog (filled by build_year_options); 0 means "any".
+        self.y_min, self.y_max = QComboBox(), QComboBox()
+        for box, key in [(self.y_min, 'yMin'), (self.y_max, 'yMax')]:
+            box.setMaxVisibleItems(15)
+            box.currentIndexChanged.connect(lambda _=0, box=box, key=key: self.set_filter(0, **{key: box.currentData() or 0}))
+            yr.addWidget(box)
+        self.build_year_options()
         v.addLayout(yr)
         v.addSpacing(12)
 
@@ -1644,11 +1644,12 @@ class MainWindow(QMainWindow):
     def missing_scores(self):
         """Movies matching every non-score filter with no OMDb result yet, most popular first."""
         f, q = self.f, norm(self.f['q']).strip()
+        y_lo, y_hi = self.year_range()
         out = [it for it in self.items if it['t'] == 'movie' and not self.rating_known(it['k'])
                and (f['svc'] == 'all' or f['svc'] in it['sv'])
                and (f['type'] == 'all' or it['t'] == f['type']) and (not q or q in it['s'])
                and (not f['genre'] or f['genre'] in it['g'])
-               and (not f['yMin'] or it['y'] >= f['yMin']) and (not f['yMax'] or (it['y'] and it['y'] <= f['yMax']))
+               and (not y_lo or it['y'] >= y_lo) and (not y_hi or (it['y'] and it['y'] <= y_hi))
                and (not f['minTmdb'] or (it['vc'] >= 10 and it['v'] >= f['minTmdb']))]
         out.sort(key=lambda it: -it['pop'])
         return out
@@ -1693,8 +1694,8 @@ class MainWindow(QMainWindow):
             self.genre.addItem(f['genre'], f['genre'])
             idx = self.genre.count() - 1
         self.genre.setCurrentIndex(max(0, idx))
-        self.y_min.setValue(f['yMin'] or 1899)
-        self.y_max.setValue(f['yMax'] or 1899)
+        self.select_year(self.y_min, f['yMin'])
+        self.select_year(self.y_max, f['yMax'])
         for key, (s, val, scale, fmt) in self.sliders.items():
             s.setValue(round(f[key] / scale))
         for w in widgets:
@@ -1705,7 +1706,36 @@ class MainWindow(QMainWindow):
             b.setChecked(b.property('svc') == f['svc'])
         self.sync_filter_labels()
 
+    def year_range(self):
+        """The year filter as (from, to); 0 means open-ended. A reversed range is read the right way round."""
+        lo, hi = self.f['yMin'], self.f['yMax']
+        if lo and hi and lo > hi:
+            lo, hi = hi, lo
+        return lo, hi
+
+    @staticmethod
+    def select_year(box, year):
+        idx = box.findData(year or 0)
+        if idx < 0 and year:  # a saved year that isn't in the current catalog
+            box.addItem(str(year), year)
+            idx = box.count() - 1
+        box.setCurrentIndex(max(0, idx))
+
+    def build_year_options(self):
+        years = sorted({it['y'] for it in self.items if it['y']}, reverse=True)
+        if not years:
+            years = list(range(int(time.strftime('%Y')), 1919, -1))
+        for box, label, key in [(self.y_min, 'From: any', 'yMin'), (self.y_max, 'To: any', 'yMax')]:
+            box.blockSignals(True)
+            box.clear()
+            box.addItem(label, 0)
+            for y in years:
+                box.addItem(str(y), y)
+            self.select_year(box, self.f[key])
+            box.blockSignals(False)
+
     def build_genre_options(self):
+        self.build_year_options()
         counts = {}
         for it in self.items:
             for g in it['g']:
@@ -1724,6 +1754,7 @@ class MainWindow(QMainWindow):
 
     def apply_filters(self, keep=False):
         f, q = self.f, norm(self.f['q']).strip()
+        y_lo, y_hi = self.year_range()
         cache = {}
 
         def S(it):
@@ -1741,9 +1772,9 @@ class MainWindow(QMainWindow):
                 return False
             if f['genre'] and f['genre'] not in it['g']:
                 return False
-            if f['yMin'] and (not it['y'] or it['y'] < f['yMin']):
+            if y_lo and (not it['y'] or it['y'] < y_lo):
                 return False
-            if f['yMax'] and (not it['y'] or it['y'] > f['yMax']):
+            if y_hi and (not it['y'] or it['y'] > y_hi):
                 return False
             if f['minTmdb'] and not (it['vc'] >= 10 and it['v'] >= f['minTmdb']):
                 return False
@@ -1940,14 +1971,13 @@ QLabel#head {{ color: {C_MUTED}; font-size: 11px; font-weight: 700; }}
 #segbox {{ background: {C_PANEL}; border: 1px solid {C_LINE}; border-radius: 18px; }}
 #notice {{ background: {C_PANEL}; border: 1px solid {C_LINE}; border-left: 3px solid {C_IMDB}; border-radius: 8px; }}
 #score {{ background: {C_PANEL2}; border: 1px solid {C_LINE}; border-radius: 10px; }}
-QLineEdit, QComboBox, QSpinBox {{ background: {C_PANEL2}; border: 1px solid {C_LINE}; border-radius: 8px;
+QLineEdit, QComboBox {{ background: {C_PANEL2}; border: 1px solid {C_LINE}; border-radius: 8px;
     padding: 6px 10px; min-height: 22px; color: {C_TEXT}; selection-background-color: {C_ACCENT}; }}
-QLineEdit:focus, QComboBox:focus, QSpinBox:focus {{ border-color: #55556a; }}
+QLineEdit:focus, QComboBox:focus {{ border-color: #55556a; }}
 QLineEdit#search {{ border-radius: 19px; padding: 7px 16px; font-size: 14px; background: {C_PANEL}; }}
 QComboBox::drop-down {{ border: none; width: 24px; }}
 QComboBox QAbstractItemView {{ background: {C_PANEL2}; border: 1px solid {C_LINE}; color: {C_TEXT};
     selection-background-color: #2e2e3c; outline: none; padding: 4px; }}
-QSpinBox::up-button, QSpinBox::down-button {{ width: 0; border: none; }}
 QPushButton {{ background: {C_PANEL2}; border: 1px solid {C_LINE}; border-radius: 8px; padding: 7px 14px;
     font-weight: 600; color: {C_TEXT}; }}
 QPushButton:hover {{ border-color: #4a4a5c; background: #22222d; }}
